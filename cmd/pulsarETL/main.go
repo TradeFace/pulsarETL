@@ -8,9 +8,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"pulsarETL/internal/pulsar"
+	"github.com/tradeface/pulsarETL/internal/pulsar"
 
-	"../../internal/config"
+	"github.com/tradeface/pulsarETL/internal/config"
 )
 
 func main() {
@@ -73,7 +73,7 @@ func waitForCancelSignal(cancel context.CancelFunc) {
 	cancel()
 }
 
-func transformMessage(msg []byte, transformConfig *MessageTransformConfig, transformedMessages chan<- []byte) error {
+func transformMessage(msg []byte, transformConfig *config.MessageTransformConfig, transformedMessages chan<- []byte) error {
 
 	transformedMsg, err := transform(msg, transformConfig)
 	if err != nil {
@@ -83,7 +83,7 @@ func transformMessage(msg []byte, transformConfig *MessageTransformConfig, trans
 	return nil
 }
 
-func transform(msg []byte, transformConfig *MessageTransformConfig) ([]byte, error) {
+func transform(msg []byte, transformConfig *config.MessageTransformConfig) ([]byte, error) {
 	// TODO: Implement message transformation
 	return msg, nil
 }

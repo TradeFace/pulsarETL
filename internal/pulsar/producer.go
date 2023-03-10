@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/apache/pulsar-client-go/pulsar"
+	"github.com/tradeface/pulsarETL/internal/config"
 )
 
 type Producer struct {
@@ -13,7 +14,7 @@ type Producer struct {
 	options pulsar.ProducerOptions
 }
 
-func NewProducer(client pulsar.Client, topic string, settings ProducerSettingsConfig) (*Producer, error) {
+func NewProducer(client pulsar.Client, topic string, settings config.ProducerSettingsConfig) (*Producer, error) {
 	options := pulsar.ProducerOptions{
 		MaxPendingMessages: settings.MaxPendingMessages,
 	}

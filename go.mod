@@ -1,4 +1,4 @@
-module pulsarETL
+module github.com/tradeface/pulsarETL
 
 go 1.17
 
