@@ -1,0 +1,31 @@
+# Pulsar Connection Information
+pulsar:
+  service_url: "pulsar://localhost:6650"
+  auth:
+    type: "token"
+    token: "my_auth_token"
+
+# Input Topic Configuration
+input_topic:
+  name: "my_input_topic"
+  subscription_name: "my_subscription"
+
+# Output Topic Configuration
+output_topic:
+  name: "my_output_topic"
+  producer_settings:
+    linger_timeout_ms: 1000
+    max_pending_messages: 1000
+
+# Message Transformation Configuration
+message_transform:
+  input_format: "json"
+  output_format: "avro"
+  schema_registry_url: "http://localhost:8081"
+  transformation_script: "my_transform_script.js"
+
+# Error Handling Configuration
+error_handling:
+  retry_attempts: 3
+  retry_delay_ms: 1000
+  log_errors: true
