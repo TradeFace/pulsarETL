@@ -9,41 +9,45 @@ import (
 )
 
 type Producer struct {
-	client  pulsar.Client
-	topic   string
-	options pulsar.ProducerOptions
+	client   pulsar.Client
+	topic    string
+	options  pulsar.ProducerOptions
+	producer pulsar.Producer
 }
 
 func NewProducer(client pulsar.Client, topic string, settings config.ProducerSettingsConfig) (*Producer, error) {
 	options := pulsar.ProducerOptions{
 		MaxPendingMessages: settings.MaxPendingMessages,
 	}
+	producer, err := client.CreateProducer(pulsar.ProducerOptions{
+		Topic: topic,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create producer: %v", err)
+	}
 
 	return &Producer{
-		client:  client,
-		topic:   topic,
-		options: options,
+		client:   client,
+		topic:    topic,
+		options:  options,
+		producer: producer,
 	}, nil
 }
 
 func (p *Producer) ProduceMessage(ctx context.Context, message []byte) error {
-	producer, err := p.client.CreateProducer(pulsar.ProducerOptions{
-		Topic: p.topic,
-	})
-	if err != nil {
-		return fmt.Errorf("failed to create producer: %v", err)
-	}
-
-	defer producer.Close()
-
 	msg := &pulsar.ProducerMessage{
 		Payload: message,
 	}
 
-	_, err = producer.Send(ctx, msg)
+	_, err := p.producer.Send(ctx, msg)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %v", err)
 	}
+	//fmt.Info("failed to send message: %v", err)
 
 	return nil
+}
+
+func (p *Producer) Close() {
+	p.producer.Close()
 }

@@ -8,6 +8,8 @@ import (
 )
 
 func ProduceTransformedMessages(ctx context.Context, producer *pulsar.Producer, transformedMessages <-chan []byte) {
+
+	defer producer.Close()
 	for {
 		select {
 		case <-ctx.Done():
