@@ -1,14 +1,16 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/linkedin/goavro/v2"
 	"github.com/tradeface/pulsarETL/internal/config"
-	"github.com/tradeface/pulsarETL/internal/etl"
 	"github.com/tradeface/pulsarETL/internal/pulsar"
 )
 
@@ -26,33 +28,29 @@ func main() {
 	}
 	defer client.Close()
 
-	// Define a channel for transformed messages
-	transformedMessages := make(chan []byte)
-	failedMessages := make(chan etl.FailedMessage)
-
 	// Create a Pulsar consumer
-	consumer := pulsar.NewConsumer(client, cfg.InputTopic.Name, cfg.InputTopic.SubscriptionName, func(msg []byte) error {
-		err := etl.ProcessAvroMessage(msg, &cfg.MessageTransform, transformedMessages, failedMessages)
+	consumer := pulsar.NewConsumer(client, cfg.OutputTopic.Name, cfg.InputTopic.SubscriptionName, func(msg []byte) error {
+
+		ocfr, err := goavro.NewOCFReader(bytes.NewReader(msg))
 		if err != nil {
-			log.Printf("Error while transforming message: %v", err)
+			log.Fatalf("Failed to create producer: %v", err)
+		}
+
+		for ocfr.Scan() {
+			v, err := ocfr.Read()
+			if err != nil {
+				log.Fatalf("Failed to create producer: %v", err)
+			}
+			fmt.Println("row:", v)
 		}
 		return nil
 	})
-
-	// Create a Pulsar producer
-	producer, err := pulsar.NewProducer(client, cfg.OutputTopic.Name, cfg.OutputTopic.ProducerSettings)
-	if err != nil {
-		log.Fatalf("Failed to create pulsar producer: %v", err)
-	}
-	defer producer.Close()
 
 	// Create a context and a cancel function
 	ctx, cancel := context.WithCancel(context.Background())
 
 	// Start the consumer and producer goroutines
-	go etl.ConsumeMessages(ctx, consumer)
-	go etl.ProcessFailedMessages(ctx, failedMessages)
-	go etl.ProduceTransformedMessages(ctx, producer, transformedMessages)
+	go consumer.ConsumeMessages(ctx)
 
 	// Wait for the cancel signal
 	waitForCancelSignal(cancel)

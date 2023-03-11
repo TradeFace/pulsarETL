@@ -2,7 +2,7 @@ package pulsar
 
 import (
 	"context"
-	"fmt"
+	"log"
 
 	"github.com/apache/pulsar-client-go/pulsar"
 )
@@ -18,34 +18,33 @@ func NewConsumer(client pulsar.Client, topic string, subName string, callback fu
 	return &Consumer{client: client, topic: topic, subName: subName, callback: callback}
 }
 
-func (c *Consumer) ConsumeMessages(ctx context.Context) error {
+func (c *Consumer) ConsumeMessages(ctx context.Context) {
 	consumer, err := c.client.Subscribe(pulsar.ConsumerOptions{
 		Topic:            c.topic,
 		SubscriptionName: c.subName,
 		Type:             pulsar.Shared,
 	})
 	if err != nil {
-		return fmt.Errorf("failed to create consumer: %v", err)
+		log.Fatalf("Failed to create consumer: %v", err)
 	}
-
 	defer consumer.Close()
 
 	for {
 		select {
 		case <-ctx.Done():
-			return nil
+			return
 		default:
 			msg, err := consumer.Receive(ctx)
 			if err != nil {
-				return fmt.Errorf("failed to receive message: %v", err)
+				continue
 			}
 
 			if err := c.callback(msg.Payload()); err != nil {
-				return fmt.Errorf("failed to process message: %v", err)
+				log.Printf("Failed to process message: %v", err)
 			}
 
 			if err := consumer.Ack(msg); err != nil {
-				return fmt.Errorf("failed to acknowledge message: %v", err)
+				log.Printf("Failed to acknowledge message: %v", err)
 			}
 		}
 	}
