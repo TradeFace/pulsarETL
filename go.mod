@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/apache/pulsar-client-go v0.9.0
+	github.com/linkedin/goavro/v2 v2.9.8
 	github.com/spf13/viper v1.15.0
 )
 
@@ -28,7 +29,6 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/klauspost/compress v1.14.4 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
-	github.com/linkedin/goavro/v2 v2.9.8 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect

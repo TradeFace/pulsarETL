@@ -2,6 +2,7 @@ package pulsar
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/tradeface/pulsarETL/internal/config"
 
@@ -9,14 +10,33 @@ import (
 )
 
 func NewPulsarClient(config *config.PulsarConfig) (pulsar.Client, error) {
+	var (
+		client pulsar.Client
+		err    error
+	)
 
-	client, err := pulsar.NewClient(pulsar.ClientOptions{
-		URL: config.ServiceURL,
-	})
+	// Set up exponential backoff algorithm
+	backoff := 1 * time.Second
+	maxBackoff := 30 * time.Second
 
-	if err != nil {
-		return nil, fmt.Errorf("failed to create pulsar client: %v", err)
+	for {
+		client, err = pulsar.NewClient(pulsar.ClientOptions{
+			URL: config.ServiceURL,
+		})
+
+		if err == nil {
+			return client, nil
+		}
+
+		fmt.Printf("failed to create pulsar client: %v, retrying in %s\n", err, backoff)
+
+		// Wait for the backoff time before retrying
+		time.Sleep(backoff)
+
+		// Increase the backoff time exponentially up to the maxBackoff time
+		backoff *= 2
+		if backoff > maxBackoff {
+			backoff = maxBackoff
+		}
 	}
-
-	return client, nil
 }

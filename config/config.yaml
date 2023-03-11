@@ -1,6 +1,7 @@
 # Pulsar Connection Information
 pulsar:
   service_url: "pulsar://localhost:6650"
+  schema_registry_url: "http://localhost:8080"
   auth:
     type: "token"
     token: "my_auth_token"
@@ -19,9 +20,9 @@ output_topic:
 
 # Message Transformation Configuration
 message_transform:
-  input_format: "json"
+  input_format: "avro"
   output_format: "avro"
-  schema_registry_url: "http://localhost:8081"
+ 
   transformation_script: "my_transform_script.js"
 
 # Error Handling Configuration

@@ -1,0 +1,53 @@
+version: "3.9"
+
+services:
+  # https://pulsar.apache.org/docs/en/standalone-docker/
+  pulsar:
+    image: apachepulsar/pulsar:2.11.0
+    container_name: pulsar
+    hostname: pulsar
+    entrypoint: "bin/pulsar standalone"
+    # volumes:
+    #   - type: bind
+    #     source: ./docker/pulsar/data
+    #     target: /pulsar/data
+    #     volume:
+    #       nocopy: true
+    #   - type: bind
+    #     source: ./docker/pulsar/conf
+    #     target: /pulsar/conf
+    #     volume:
+    #       nocopy: true
+    environment:
+      PULSAR_MEM: " -Xms512m -Xmx512m -XX:MaxDirectMemorySize=1g"
+      PULSAR_ADMIN_USERNAME: "admin"
+      PULSAR_ADMIN_PASSWORD: "admin"
+    ports:
+      - 6650:6650
+      - 8080:8080
+      - 8443:8443
+  
+
+  # myapp:
+  #   build: .
+  #   image: myapp
+  #   container_name: myapp
+  #   depends_on:
+  #     - pulsar
+  #     - schema-registry
+  #   environment:
+  #     PULSAR_SERVICE_URL: "pulsar://pulsar:6650"
+  #     PULSAR_AUTH_TYPE: "token"
+  #     PULSAR_AUTH_TOKEN: "my_auth_token"
+  #     INPUT_TOPIC_NAME: "my_input_topic"
+  #     INPUT_TOPIC_SUBSCRIPTION_NAME: "my_subscription"
+  #     OUTPUT_TOPIC_NAME: "my_output_topic"
+  #     PRODUCER_LINGER_TIMEOUT_MS: 1000
+  #     PRODUCER_MAX_PENDING_MESSAGES: 1000
+  #     MESSAGE_TRANSFORM_INPUT_FORMAT: "avro"
+  #     MESSAGE_TRANSFORM_OUTPUT_FORMAT: "avro"
+  #     SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+  #     TRANSFORMATION_SCRIPT_PATH: "my_transform_script.js"
+  #     ERROR_HANDLING_RETRY_ATTEMPTS: 3
+  #     ERROR_HANDLING_RETRY_DELAY_MS: 1000
+  #     ERROR_HANDLING_LOG_ERRORS: true

@@ -1,9 +1,6 @@
 package config
 
 import (
-	"fmt"
-	"path/filepath"
-
 	"github.com/spf13/viper"
 )
 
@@ -16,8 +13,9 @@ type Config struct {
 }
 
 type PulsarConfig struct {
-	ServiceURL string     `mapstructure:"service_url"`
-	Auth       AuthConfig `mapstructure:"auth"`
+	ServiceURL        string     `mapstructure:"service_url"`
+	SchemaRegistryURL string     `mapstructure:"schema_registry_url"`
+	Auth              AuthConfig `mapstructure:"auth"`
 }
 
 type AuthConfig struct {
@@ -39,7 +37,6 @@ type ProducerSettingsConfig struct {
 type MessageTransformConfig struct {
 	InputFormat          string `mapstructure:"input_format"`
 	OutputFormat         string `mapstructure:"output_format"`
-	SchemaRegistryURL    string `mapstructure:"schema_registry_url"`
 	TransformationScript string `mapstructure:"transformation_script"`
 }
 
@@ -50,16 +47,10 @@ type ErrorHandlingConfig struct {
 }
 
 func LoadConfig() (*Config, error) {
-	// Get the absolute path of the configuration file
-	configPath, err := filepath.Abs("config/config.yaml")
-	if err != nil {
-		fmt.Println("Failed to get absolute path of configuration file:", err)
-		return nil, err
-	}
+	viper.AutomaticEnv() // enable reading environment variables
 
 	// Set up viper to read the configuration file
-	viper.SetConfigFile(configPath)
-
+	viper.SetConfigFile("config/config.yaml")
 	viper.SetConfigType("yaml")
 
 	if err := viper.ReadInConfig(); err != nil {
